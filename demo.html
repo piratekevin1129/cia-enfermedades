@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Dr. Vida — RPG ECNT</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #0a0a0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: monospace;
+  overflow: hidden;
+}
+#wrap {
+  position: relative;
+  width: 640px;
+  height: 480px;
+  max-width: 100vw;
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+#ui {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ── DIALOGUE BOX ── */
+#dialogue {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 148px;
+  background: #0d1117;
+  border-top: 3px solid #4ade80;
+  display: none;
+  pointer-events: all;
+  padding: 0;
+}
+#dialogue-inner {
+  padding: 12px 16px 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+#dialogue-name {
+  font-size: 11px;
+  color: #4ade80;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+#dialogue-text {
+  font-size: 13px;
+  color: #e2e8f0;
+  line-height: 1.55;
+  flex: 1;
+  overflow: hidden;
+}
+#dialogue-cursor {
+  color: #4ade80;
+  font-size: 11px;
+  text-align: right;
+  animation: blink 0.8s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── CHOICE BOX ── */
+#choices {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: #0d1117;
+  border-top: 3px solid #fbbf24;
+  display: none;
+  pointer-events: all;
+  padding: 10px 16px;
+}
+#choices-prompt {
+  font-size: 11px;
+  color: #fbbf24;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+#choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.choice-btn {
+  background: #1a2236;
+  border: 1px solid #2d3a52;
+  color: #e2e8f0;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 6px 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.12s;
+  pointer-events: all;
+}
+.choice-btn:hover, .choice-btn.selected { background: #1e3a5f; border-color: #fbbf24; color: #fbbf24; }
+.choice-btn.correct { border-color: #4ade80; color: #4ade80; background: #0d2a1a; }
+.choice-btn.wrong   { border-color: #f87171; color: #f87171; background: #2a0d0d; }
+
+/* ── HUD ── */
+#hud {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 36px;
+  background: rgba(13,17,23,0.9);
+  border-bottom: 2px solid #1e2d45;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 20px;
+  pointer-events: none;
+}
+.hud-stat {
+  font-size: 10px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.hud-stat .hv { color: #e2e8f0; font-weight: bold; font-size: 11px; }
+.hud-stat .hv.green { color: #4ade80; }
+.hud-stat .hv.amber { color: #fbbf24; }
+.hud-stat .hv.red   { color: #f87171; }
+
+/* XP Bar */
+.xp-bar-wrap { flex:1; height: 6px; background: #1e2d45; border-radius: 3px; overflow:hidden; }
+.xp-bar-fill { height: 100%; background: #4ade80; border-radius: 3px; transition: width 0.4s; }
+
+/* ── OVERLAY SCREENS ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: #0a0a0f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+  pointer-events: all;
+}
+.overlay h1 {
+  font-size: 22px;
+  color: #4ade80;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.overlay .sub {
+  font-size: 10px;
+  color: #4ade80;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  opacity: 0.6;
+}
+.overlay p {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.7;
+  max-width: 420px;
+  margin-bottom: 6px;
+}
+.pixel-btn {
+  margin-top: 24px;
+  background: #4ade80;
+  color: #0a0a0f;
+  border: none;
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 10px 32px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.15s;
+  pointer-events: all;
+}
+.pixel-btn:hover { background: #86efac; transform: translateY(-1px); }
+.pixel-btn.outline {
+  background: transparent;
+  border: 2px solid #4ade80;
+  color: #4ade80;
+  margin-top: 10px;
+}
+
+/* Patient card (during encounter) */
+#patient-card {
+  position: absolute;
+  top: 40px; right: 8px;
+  width: 170px;
+  background: #0d1117;
+  border: 1px solid #1e2d45;
+  border-radius: 3px;
+  padding: 10px 12px;
+  display: none;
+  pointer-events: none;
+}
+#patient-card .pc-title {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+#patient-card .pc-name {
+  font-size: 12px;
+  color: #fbbf24;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+#patient-card .pc-row {
+  font-size: 10px;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+#patient-card .pc-row span { color: #e2e8f0; }
+
+/* Result flash */
+#result-flash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  border: 2px solid;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#result-flash.show { opacity: 1; }
+#result-flash.ok  { color: #4ade80; border-color: #4ade80; background: rgba(13,17,23,0.9); }
+#result-flash.bad { color: #f87171; border-color: #f87171; background: rgba(13,17,23,0.9); }
+
+/* Controls hint */
+#controls-hint {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: #1e2d45;
+  letter-spacing: 1px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" width="640" height="480"></canvas>
+  <div id="ui">
+    <div id="hud" style="display:none">
+      <div class="hud-stat">🩺 DR. VIDA</div>
+      <div class="hud-stat">REP <span class="hv green" id="h-rep">100</span></div>
+      <div class="hud-stat">CASOS <span class="hv amber" id="h-cases">0/4</span></div>
+      <div class="hud-stat" style="flex:1">XP
+        <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-fill" style="width:0%"></div></div>
+      </div>
+      <div class="hud-stat" id="h-level">NV <span class="hv">1</span></div>
+    </div>
+
+    <div id="patient-card">
+      <div class="pc-title">Ficha del Paciente</div>
+      <div class="pc-name" id="pc-name">—</div>
+      <div class="pc-row" id="pc-info"></div>
+    </div>
+
+    <div id="dialogue">
+      <div id="dialogue-inner">
+        <div id="dialogue-name">—</div>
+        <div id="dialogue-text"></div>
+        <div id="dialogue-cursor">▼ ENTER / CLICK</div>
+      </div>
+    </div>
+
+    <div id="choices">
+      <div id="choices-prompt">¿Cuál es tu decisión?</div>
+      <div id="choices-list"></div>
+    </div>
+
+    <div id="result-flash"></div>
+    <div id="controls-hint">WASD / ↑↓←→ mover · ENTER / CLICK interactuar</div>
+  </div>
+
+  <!-- TITLE SCREEN -->
+  <div class="overlay" id="screen-title">
+    <div class="sub">ECNT · RPG de Salud</div>
+    <h1>Dr. Vida</h1>
+    <p>Eres médico en la Villa Salud.<br>Cuatro pacientes esperan tu ayuda.<br>Escucha sus historias, identifica sus enfermedades y recomienda cómo mejorar su estilo de vida.</p>
+    <p style="margin-top:12px;font-size:10px;color:#4ade80;opacity:0.7">Basado únicamente en contenido oficial ECNT</p>
+    <button class="pixel-btn" onclick="startGame()">▶ COMENZAR</button>
+  </div>
+
+  <!-- END SCREEN -->
+  <div class="overlay" id="screen-end" style="display:none">
+    <div class="sub">Fin del turno</div>
+    <h1 id="end-title">¡Turno completo!</h1>
+    <p id="end-body"></p>
+    <div id="end-summary" style="margin-top:16px;font-size:11px;color:#64748b;line-height:1.8;text-align:left;max-width:420px"></div>
+    <button class="pixel-btn" onclick="location.reload()">↺ JUGAR DE NUEVO</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  CANVAS ENGINE
+// ═══════════════════════════════════════════════
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 640, H = 480;
+
+// Pixel font renderer (using canvas fillText with monospace)
+function px(text, x, y, color='#e2e8f0', size=8) {
+  ctx.fillStyle = color;
+  ctx.font = `${size}px monospace`;
+  ctx.fillText(text, x, y);
+}
+
+// ── COLORS ──
+const COL = {
+  bg:       '#0f1520',
+  grass:    '#1a3a1a',
+  grassL:   '#1e4a1e',
+  path:     '#3a2e1e',
+  pathL:    '#4a3a28',
+  wall:     '#2a1a0e',
+  wallL:    '#3a2510',
+  roof:     '#5c1a1a',
+  door:     '#7a4000',
+  window:   '#3a6a8a',
+  water:    '#1a3a5c',
+  waterL:   '#1e4a70',
+  tree:     '#1a5c1a',
+  treeD:    '#0e3a0e',
+  player:   '#7ecfff',
+  playerC:  '#ffffff',
+  npc1:     '#ffaa44',
+  npc2:     '#ff7777',
+  npc3:     '#aaaaff',
+  npc4:     '#ffdd77',
+  npcDoc:   '#88ff88',
+  shadow:   'rgba(0,0,0,0.4)',
+  hud:      '#0d1117',
+  green:    '#4ade80',
+  amber:    '#fbbf24',
+  red:      '#f87171',
+  blue:     '#60a5fa',
+};
+
+// ─────────────────────────────────────────────
+//  GAME STATE
+// ─────────────────────────────────────────────
+const GS = {
+  scene: 'town',     // 'town' | 'clinic'
+  rep: 100,
+  xp: 0,
+  level: 1,
+  casesCompleted: 0,
+  totalCorrect: 0,
+  totalQuestions: 0,
+  currentPatientIdx: -1,
+  dialogueQueue: [],
+  dialogueActive: false,
+  choicesActive: false,
+  casePhase: 'idle', // 'idle'|'intro'|'question'|'feedback'|'done'
+  questionIdx: 0,
+  caseCorrect: 0,
+};
+
+// Player
+const player = {
+  x: 320, y: 240,
+  vx: 0, vy: 0,
+  speed: 2.2,
+  dir: 2, // 0=up,1=right,2=down,3=left
+  frame: 0,
+  frameTimer: 0,
+  moving: false,
+};
+
+const keys = {};
+let lastTime = 0;
+
+// ─────────────────────────────────────────────
+//  MAP: TOWN
+// ─────────────────────────────────────────────
+// Tile size
+const T = 32;
+const COLS = Math.ceil(W/T)+1;
+const ROWS = Math.ceil(H/T)+1;
+
+// Town layout (simplified tile map: 0=grass,1=path,2=wall,3=tree,4=water,5=door)
+const MAP_W = 20, MAP_H = 15;
+const TOWN = [
+  [3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3],
+  [3,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,3,3],
+  [0,0,2,2,2,2,0,2,2,2,2,2,0,2,2,2,2,0,0,3],
+  [0,1,2,0,0,2,0,2,0,0,0,2,0,2,0,0,2,1,0,0],
+  [0,1,2,0,0,5,1,5,0,0,0,2,0,5,0,0,2,1,0,0],
+  [0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0],
+  [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+  [0,1,2,0,0,2,0,2,0,0,0,2,0,2,0,0,2,1,0,0],
+  [0,1,2,0,0,5,1,5,0,0,0,2,0,5,0,0,2,1,0,0],
+  [0,1,2,2,2,2,0,2,2,2,2,2,0,2,2,2,2,1,0,0],
+  [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0],
+  [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+  [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0],
+  [3,3,0,0,4,4,4,4,4,4,4,4,4,4,0,0,0,0,3,3],
+  [3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3],
+];
+
+// Buildings info (label, color, NPC index)
+const BUILDINGS = [
+  { name:'CLÍNICA CORAZÓN', col:3,  row:2, w:4, h:3, npcIdx:0, color:'#5c1a1a', accent:'#f87171', desc:'Casos cardiovasculares' },
+  { name:'PULMÓN CLÍNICA',  col:7,  row:2, w:4, h:3, npcIdx:1, color:'#1a3a1a', accent:'#4ade80', desc:'Casos respiratorios' },
+  { name:'ONCOLOGÍA',       col:12, row:2, w:4, h:3, npcIdx:2, color:'#2a1a4a', accent:'#a78bfa', desc:'Casos de cáncer' },
+  { name:'DIABETES CTR',    col:15, row:2, w:3, h:3, npcIdx:3, color:'#3a2a00', accent:'#fbbf24', desc:'Casos metabólicos' },
+];
+
+// Camera
+let camX = 0, camY = 0;
+
+// ─────────────────────────────────────────────
+//  NPCs (patients + mentor)
+// ─────────────────────────────────────────────
+const NPCS = [
+  { id:0, x:4*T+T/2, y:4*T+T/2, color:COL.npc2, name:'Carlos',  emoji:'👨', done:false },
+  { id:1, x:8*T+T/2, y:4*T+T/2, color:COL.npc3, name:'Rosa',    emoji:'👩', done:false },
+  { id:2, x:12*T+T/2,y:4*T+T/2, color:COL.npc1, name:'Andrés',  emoji:'🧑', done:false },
+  { id:3, x:15*T+T/2,y:4*T+T/2, color:COL.npc4, name:'Lucía',   emoji:'👩‍🦳', done:false },
+];
+
+// ─────────────────────────────────────────────
+//  PATIENT CASES (ECNT content only)
+// ─────────────────────────────────────────────
+const PATIENTS = [
+{
+  idx:0, name:'Carlos, 52 años', emoji:'👨',
+  color: '#f87171',
+  intro:[
+    { speaker:'CARLOS', text:'Doctor… me duele mucho el pecho. Siento que me aprietan el corazón. También me duele el brazo izquierdo.' },
+    { speaker:'CARLOS', text:'Llevo 25 años fumando. Nunca hago ejercicio. Como mucho frito y salado. Me dijeron que tengo la presión alta pero nunca le hice caso.' },
+    { speaker:'DR. VIDA', text:'Veo varios signos de alarma, Carlos. Analicemos juntos lo que está pasando.' },
+  ],
+  questions:[
+    {
+      q:'¿Qué tipo de ECNT describe mejor lo que tiene Carlos?',
+      opts:['Cáncer de colon','Enfermedad cardiocerebrovasvascular (ECV)','Diabetes mellitus','Enfermedad respiratoria crónica'],
+      correct:1,
+      ok:'¡Correcto! El dolor de pecho con irradiación al brazo y presión alta son señales de una ECV — grupo de trastornos del corazón, cerebro y vasos sanguíneos.',
+      bad:'No es correcto. Sus síntomas (dolor torácico, brazo izquierdo, presión alta) corresponden a una Enfermedad Cardiocerebrovasvascular (ECV).',
+    },
+    {
+      q:'¿Cuál es el factor de riesgo MODIFICABLE más crítico en Carlos?',
+      opts:['Su edad de 52 años','Su sexo masculino','Tabaquismo y sedentarismo','Sus antecedentes familiares'],
+      correct:2,
+      ok:'¡Bien! El tabaquismo y el sedentarismo son factores MODIFICABLES — los más relevantes porque están directamente relacionados con el estilo de vida.',
+      bad:'Edad y sexo son NO modificables. El tabaquismo y sedentarismo son los factores MODIFICABLES clave: dependen del estilo de vida y pueden cambiarse.',
+    },
+    {
+      q:'¿Qué afirmación sobre las ECV es correcta?',
+      opts:[
+        'Se originan principalmente por infecciones agudas',
+        'Solo afectan el corazón, no el cerebro',
+        'Incluyen infarto, ACV, enfermedades coronarias e hipertensión',
+        'No requieren seguimiento continuo',
+      ],
+      correct:2,
+      ok:'¡Exacto! Las ECV incluyen infarto de miocardio, ACV, enfermedades coronarias, arteriales periféricas e hipertensión. Son crónicas: requieren seguimiento continuo.',
+      bad:'Las ECV son un grupo de trastornos del corazón, el cerebro y los vasos sanguíneos. Incluyen infarto, ACV, enfermedades coronarias, arteriales periféricas e hipertensión.',
+    },
+  ],
+  closing:'Carlos necesita atención urgente. Su caso es un recordatorio de que los factores modificables como el tabaquismo y el sedentarismo son los más importantes para prevenir.',
+},
+{
+  idx:1, name:'Rosa, 65 años', emoji:'👩',
+  color: '#4ade80',
+  intro:[
+    { speaker:'ROSA', text:'Doctor, llevo años con esta tos que no se va. Me falta el aire cuando camino. A veces hay como un silbido al respirar.' },
+    { speaker:'ROSA', text:'Dejé de fumar hace 5 años, pero antes fumé 30 años. Cocinaba con leña toda mi vida en casa cerrada.' },
+    { speaker:'DR. VIDA', text:'Rosa, lo que describes afecta el aparato respiratorio. Vamos a explorar esto juntos.' },
+  ],
+  questions:[
+    {
+      q:'¿Qué grupo de ECNT afecta a Rosa?',
+      opts:['Diabetes mellitus','Cáncer de pulmón','Enfermedades respiratorias crónicas','Enfermedades cardiocerebrovasculares'],
+      correct:2,
+      ok:'¡Correcto! La tos crónica, falta de aire y silbidos al respirar son signos de enfermedades respiratorias crónicas, que afectan bronquios, pulmones y caja torácica.',
+      bad:'Los síntomas de Rosa (tos crónica, disnea, sibilancias) corresponden a enfermedades respiratorias crónicas como EPOC o asma.',
+    },
+    {
+      q:'¿Cuáles de las siguientes son enfermedades respiratorias crónicas?',
+      opts:['Infarto y ACV','Asma y EPOC','Diabetes tipo 1 y tipo 2','Cáncer de mama y cuello uterino'],
+      correct:1,
+      ok:'¡Perfecto! Las enfermedades respiratorias crónicas incluyen el asma y la EPOC (Enfermedad Pulmonar Obstructiva Crónica).',
+      bad:'Las enfermedades respiratorias crónicas son el asma y la EPOC. Afectan los bronquios, pulmones y caja torácica.',
+    },
+    {
+      q:'La exposición al humo de leña en casa cerrada es un factor de riesgo…',
+      opts:[
+        'No modificable: es parte de la cultura',
+        'Modificable: puede cambiarse mejorando la ventilación o el combustible',
+        'No existe relación entre humo de leña y enfermedades respiratorias',
+        'Solo afecta a personas con antecedentes familiares',
+      ],
+      correct:1,
+      ok:'¡Correcto! El humo de leña en ambientes cerrados es un factor MODIFICABLE. Como todos los factores comportamentales, está relacionado con el estilo de vida y puede intervenirse.',
+      bad:'El humo de leña es un factor MODIFICABLE — puede cambiarse. Los factores modificables son los más relevantes por estar directamente relacionados con el estilo de vida.',
+    },
+  ],
+  closing:'Rosa tiene una enfermedad respiratoria crónica. Aunque el daño no se revierte, los factores modificables como dejar de fumar y mejorar la ventilación son clave.',
+},
+{
+  idx:2, name:'Andrés, 45 años', emoji:'🧑',
+  color: '#a78bfa',
+  intro:[
+    { speaker:'ANDRÉS', text:'Doctor, he bajado mucho de peso sin querer. Tengo un nódulo en el cuello que apareció hace un mes. Me siento muy cansado.' },
+    { speaker:'ANDRÉS', text:'Fumé toda mi vida. Bebo alcohol frecuentemente. Mi madre tuvo lo mismo a los 55 años.' },
+    { speaker:'DR. VIDA', text:'Andrés, debo ser honesto: estos síntomas requieren evaluación urgente. Hablemos sobre lo que podría estar pasando.' },
+  ],
+  questions:[
+    {
+      q:'¿Con qué ECNT son más compatibles los síntomas de Andrés?',
+      opts:['Asma bronquial','Hipertensión arterial','Cáncer','Diabetes mellitus'],
+      correct:2,
+      ok:'¡Correcto! La pérdida de peso no intencional, el nódulo y el cansancio extremo son señales de alerta de cáncer — enfermedad donde células crecen de forma descontrolada.',
+      bad:'Los síntomas de Andrés (pérdida de peso, nódulo, fatiga) son señales de alerta de cáncer: enfermedad en que células crecen de modo descontrolado y pueden diseminarse.',
+    },
+    {
+      q:'¿Cuál es la definición correcta de cáncer?',
+      opts:[
+        'Infección viral que ataca el sistema inmune',
+        'Enfermedad en que células crecen de modo descontrolado y pueden diseminarse',
+        'Trastorno metabólico que afecta el uso del azúcar',
+        'Inflamación crónica de los bronquios',
+      ],
+      correct:1,
+      ok:'¡Exacto! El cáncer es la enfermedad en la que algunas células del cuerpo crecen de manera descontrolada y pueden diseminarse a otras partes.',
+      bad:'El cáncer es la enfermedad en que algunas células crecen de modo descontrolado y pueden diseminarse. Incluye pulmón, mama, cuello uterino, colon y recto, entre otros.',
+    },
+    {
+      q:'El tabaquismo y el alcohol en Andrés son factores de riesgo…',
+      opts:[
+        'No modificables: ya forman parte de su historia',
+        'Modificables: directamente relacionados con el estilo de vida',
+        'Irrelevantes si el cáncer ya está presente',
+        'Solo son factores de riesgo para enfermedades respiratorias',
+      ],
+      correct:1,
+      ok:'¡Bien! Tabaquismo y alcohol son factores MODIFICABLES y comportamentales — los más relevantes porque dependen del estilo de vida y pueden cambiarse.',
+      bad:'Tabaquismo y alcohol son factores MODIFICABLES. Los factores comportamentales modificables son los más relevantes al estar directamente relacionados con el estilo de vida.',
+    },
+  ],
+  closing:'El caso de Andrés ilustra cómo los factores modificables acumulados (tabaquismo, alcohol) aumentan el riesgo de cáncer. La detección temprana es fundamental.',
+},
+{
+  idx:3, name:'Lucía, 48 años', emoji:'👩‍🦳',
+  color: '#fbbf24',
+  intro:[
+    { speaker:'LUCÍA', text:'Doctor, siempre tengo mucha sed. Me levanto varias veces en la noche a orinar. La vista se me pone borrosa a veces.' },
+    { speaker:'LUCÍA', text:'Soy muy sedentaria. Como mucho dulce y comida procesada. Tengo sobrepeso. Mi mamá y mi abuela tuvieron esto mismo.' },
+    { speaker:'DR. VIDA', text:'Lucía, lo que describes me indica un problema en cómo tu cuerpo usa el azúcar. Veamos qué está pasando.' },
+  ],
+  questions:[
+    {
+      q:'¿Qué ECNT describe mejor el caso de Lucía?',
+      opts:['Enfermedad cardiocerebrovasvascular','Cáncer de cuello uterino','Diabetes mellitus','EPOC'],
+      correct:2,
+      ok:'¡Correcto! Sed excesiva, orinar frecuente y visión borrosa son síntomas clásicos de diabetes mellitus: trastorno metabólico que afecta cómo el cuerpo usa el azúcar.',
+      bad:'Los síntomas de Lucía (polidipsia, poliuria, visión borrosa) corresponden a diabetes mellitus: trastorno metabólico que afecta el uso del azúcar en la sangre.',
+    },
+    {
+      q:'¿Cuál es la definición correcta de diabetes mellitus?',
+      opts:[
+        'Inflamación de las arterias coronarias del corazón',
+        'Crecimiento celular descontrolado en el páncreas',
+        'Trastorno metabólico que afecta cómo el cuerpo usa el azúcar',
+        'Obstrucción crónica del flujo de aire en los pulmones',
+      ],
+      correct:2,
+      ok:'¡Exacto! La diabetes mellitus es un trastorno metabólico que afecta la forma en que el cuerpo utiliza el azúcar en la sangre.',
+      bad:'La diabetes mellitus es un trastorno metabólico que afecta la forma en que el cuerpo utiliza el azúcar en la sangre. No es una infección ni un cáncer.',
+    },
+    {
+      q:'¿Cuál de estos factores en Lucía NO es modificable?',
+      opts:[
+        'El sedentarismo',
+        'La alimentación rica en azúcares',
+        'El sobrepeso',
+        'Los antecedentes familiares (mamá y abuela)',
+      ],
+      correct:3,
+      ok:'¡Bien! Los antecedentes familiares son un factor NO modificable: no pueden cambiarse. Los no modificables incluyen edad, sexo, genética y antecedentes familiares.',
+      bad:'Los antecedentes familiares son NO modificables (junto con edad, sexo y genética). El sedentarismo, dieta y sobrepeso son factores MODIFICABLES que sí pueden cambiarse.',
+    },
+  ],
+  closing:'Lucía tiene diabetes mellitus. Sus factores modificables (sedentarismo, alimentación, sobrepeso) son los que más pueden intervenirse para mejorar su calidad de vida.',
+},
+];
+
+// ─────────────────────────────────────────────
+//  DIALOGUE SYSTEM
+// ─────────────────────────────────────────────
+let dlgQueue = [];
+let dlgCallback = null;
+let dlgTyping = false;
+let dlgTypedText = '';
+let dlgFullText = '';
+let dlgTypeIdx = 0;
+let dlgTypeTimer = 0;
+const DLG_SPEED = 28; // ms per char
+
+function showDialogue(lines, callback) {
+  dlgQueue = [...lines];
+  dlgCallback = callback || null;
+  advanceDialogue();
+}
+
+function advanceDialogue() {
+  if (dlgTyping) {
+    // Skip typing
+    dlgTypedText = dlgFullText;
+    dlgTypeIdx = dlgFullText.length;
+    dlgTyping = false;
+    renderDialogueText();
+    return;
+  }
+  if (dlgQueue.length === 0) {
+    hideDialogue();
+    if (dlgCallback) { const cb = dlgCallback; dlgCallback = null; cb(); }
+    return;
+  }
+  const line = dlgQueue.shift();
+  document.getElementById('dialogue').style.display = 'block';
+  document.getElementById('choices').style.display = 'none';
+  document.getElementById('dialogue-name').textContent = line.speaker || 'NARRADOR';
+  dlgFullText = line.text;
+  dlgTypedText = '';
+  dlgTypeIdx = 0;
+  dlgTyping = true;
+  GS.dialogueActive = true;
+}
+
+function renderDialogueText() {
+  document.getElementById('dialogue-text').textContent = dlgTypedText;
+}
+
+function updateDialogueTyping(dt) {
+  if (!dlgTyping) return;
+  dlgTypeTimer += dt;
+  while (dlgTypeTimer >= DLG_SPEED && dlgTypeIdx < dlgFullText.length) {
+    dlgTypeTimer -= DLG_SPEED;
+    dlgTypedText += dlgFullText[dlgTypeIdx++];
+  }
+  if (dlgTypeIdx >= dlgFullText.length) dlgTyping = false;
+  renderDialogueText();
+}
+
+function hideDialogue() {
+  document.getElementById('dialogue').style.display = 'none';
+  GS.dialogueActive = false;
+}
+
+// ─────────────────────────────────────────────
+//  CHOICE SYSTEM
+// ─────────────────────────────────────────────
+function showChoices(prompt, opts, callback) {
+  document.getElementById('dialogue').style.display = 'none';
+  document.getElementById('choices').style.display = 'block';
+  document.getElementById('choices-prompt').textContent = prompt;
+  const list = document.getElementById('choices-list');
+  list.innerHTML = '';
+  GS.choicesActive = true;
+  GS.dialogueActive = true;
+  opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = `${['A','B','C','D'][i]}. ${opt}`;
+    btn.onclick = () => {
+      GS.choicesActive = false;
+      document.getElementById('choices').style.display = 'none';
+      callback(i);
+    };
+    list.appendChild(btn);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  CASE ENGINE
+// ─────────────────────────────────────────────
+function startCase(patientIdx) {
+  if (NPCS[patientIdx].done) {
+    showDialogue([{ speaker: NPCS[patientIdx].name.toUpperCase(), text:'Ya recibí tu diagnóstico, Doctor. ¡Gracias por tu ayuda!' }]);
+    return;
+  }
+  GS.currentPatientIdx = patientIdx;
+  GS.casePhase = 'intro';
+  GS.questionIdx = 0;
+  GS.caseCorrect = 0;
+  const p = PATIENTS[patientIdx];
+
+  // Show patient card
+  document.getElementById('patient-card').style.display = 'block';
+  document.getElementById('pc-name').textContent = p.name + ' ' + p.emoji;
+  document.getElementById('pc-info').innerHTML = `ECNT: <span style="color:${p.color}">Por determinar</span>`;
+
+  showDialogue(p.intro, () => { askQuestion(patientIdx, 0); });
+}
+
+function askQuestion(patientIdx, qIdx) {
+  const p = PATIENTS[patientIdx];
+  const q = p.questions[qIdx];
+  GS.questionIdx = qIdx;
+  GS.casePhase = 'question';
+  GS.totalQuestions++;
+
+  showChoices(`Pregunta ${qIdx+1}/3: ${q.q}`, q.opts, (chosen) => {
+    const correct = chosen === q.correct;
+    if (correct) {
+      GS.totalCorrect++;
+      GS.caseCorrect++;
+      GS.xp = Math.min(100, GS.xp + 18);
+      GS.rep = Math.min(100, GS.rep + 4);
+      flashResult(true);
+      playSfx(880);
+    } else {
+      GS.rep = Math.max(0, GS.rep - 8);
+      flashResult(false);
+      playSfx(220);
+    }
+    updateHUD();
+    showDialogue([
+      { speaker: correct ? '✅ CORRECTO' : '❌ INCORRECTO', text: correct ? q.ok : q.bad }
+    ], () => {
+      if (qIdx + 1 < p.questions.length) {
+        askQuestion(patientIdx, qIdx + 1);
+      } else {
+        endCase(patientIdx);
+      }
+    });
+  });
+}
+
+function endCase(patientIdx) {
+  const p = PATIENTS[patientIdx];
+  NPCS[patientIdx].done = true;
+  GS.casesCompleted++;
+  GS.casePhase = 'done';
+  if (GS.xp >= 100) { GS.level++; GS.xp = 20; }
+
+  // Update patient card with diagnosis
+  document.getElementById('pc-info').innerHTML =
+    `ECNT: <span style="color:${p.color}">${['ECV','Resp. Crónica','Cáncer','Diabetes'][patientIdx]}</span>`;
+
+  const stars = GS.caseCorrect === 3 ? '★★★' : GS.caseCorrect === 2 ? '★★☆' : '★☆☆';
+  showDialogue([
+    { speaker:'DR. VIDA', text: p.closing },
+    { speaker:'RESUMEN CASO', text:`Respuestas correctas: ${GS.caseCorrect}/3   ${stars}` },
+  ], () => {
+    document.getElementById('patient-card').style.display = 'none';
+    if (GS.casesCompleted >= 4) {
+      setTimeout(showEndScreen, 600);
+    }
+  });
+  updateHUD();
+}
+
+function showEndScreen() {
+  const pct = Math.round(GS.totalCorrect / GS.totalQuestions * 100);
+  const grade = pct >= 85 ? 'Médico Experto ECNT' : pct >= 60 ? 'Buen Clínico' : 'En Formación';
+  document.getElementById('end-title').textContent = grade + '  ' + (pct >= 85 ? '🏆' : pct >= 60 ? '🥈' : '📚');
+  document.getElementById('end-body').textContent = `Diagnósticos correctos: ${GS.totalCorrect}/${GS.totalQuestions} (${pct}%)   Reputación: ${GS.rep}/100`;
+  document.getElementById('end-summary').innerHTML = `
+    <b style="color:#4ade80">Repaso rápido ECNT:</b><br>
+    ❤️ ECV: trastornos del corazón, cerebro y vasos sanguíneos<br>
+    🎗️ Cáncer: células crecen de forma descontrolada y se diseminan<br>
+    🫁 Respiratorias: afectan bronquios, pulmones y caja torácica (asma, EPOC)<br>
+    🩸 Diabetes: trastorno metabólico del uso del azúcar en sangre<br>
+    <br><b style="color:#fbbf24">Factores modificables</b> (los más relevantes): tabaquismo, alimentación inadecuada, obesidad, sedentarismo, alcohol, hipertensión, diabetes<br>
+    <b style="color:#94a3b8">No modificables:</b> edad, sexo, genética, antecedentes familiares
+  `;
+  document.getElementById('screen-end').style.display = 'flex';
+}
+
+// ─────────────────────────────────────────────
+//  INTERACTION CHECK
+// ─────────────────────────────────────────────
+function tryInteract() {
+  if (GS.dialogueActive) {
+    advanceDialogue();
+    return;
+  }
+  // Check NPC proximity
+  const px = player.x, py = player.y;
+  for (let i = 0; i < NPCS.length; i++) {
+    const n = NPCS[i];
+    const dx = px - n.x, dy = py - n.y;
+    if (Math.sqrt(dx*dx+dy*dy) < 40) {
+      startCase(i);
+      return;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+//  RESULT FLASH
+// ─────────────────────────────────────────────
+function flashResult(ok) {
+  const el = document.getElementById('result-flash');
+  el.textContent = ok ? '✓ CORRECTO' : '✗ INCORRECTO';
+  el.className = 'show ' + (ok ? 'ok' : 'bad');
+  setTimeout(() => el.className = '', 1200);
+}
+
+// ─────────────────────────────────────────────
+//  AUDIO
+// ─────────────────────────────────────────────
+let audioCtx;
+function playSfx(freq) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'square';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+    o.start(); o.stop(audioCtx.currentTime + 0.15);
+  } catch(e) {}
+}
+
+// ─────────────────────────────────────────────
+//  HUD UPDATE
+// ─────────────────────────────────────────────
+function updateHUD() {
+  document.getElementById('h-rep').textContent = GS.rep;
+  document.getElementById('h-rep').className = 'hv ' + (GS.rep>70?'green':GS.rep>40?'amber':'red');
+  document.getElementById('h-cases').textContent = GS.casesCompleted+'/4';
+  document.getElementById('xp-fill').style.width = GS.xp+'%';
+  document.getElementById('h-level').innerHTML = `NV <span class="hv">${GS.level}</span>`;
+}
+
+// ─────────────────────────────────────────────
+//  COLLISION
+// ─────────────────────────────────────────────
+function isBlocked(wx, wy) {
+  const tx = Math.floor(wx / T);
+  const ty = Math.floor(wy / T);
+  if (tx < 0||ty < 0||tx >= MAP_W||ty >= MAP_H) return true;
+  const t = TOWN[ty][tx];
+  return t === 2 || t === 3 || t === 4; // wall, tree, water
+}
+
+// ─────────────────────────────────────────────
+//  DRAW UTILITIES
+// ─────────────────────────────────────────────
+function drawTile(tx, ty, sx, sy) {
+  const t = TOWN[ty]?.[tx];
+  if (t === undefined) return;
+  switch(t) {
+    case 0: // grass
+      ctx.fillStyle = (tx+ty)%2===0 ? COL.grass : COL.grassL;
+      ctx.fillRect(sx, sy, T, T);
+      break;
+    case 1: // path
+      ctx.fillStyle = (tx+ty)%2===0 ? COL.path : COL.pathL;
+      ctx.fillRect(sx, sy, T, T);
+      // cobblestone dots
+      ctx.fillStyle = 'rgba(0,0,0,0.15)';
+      ctx.fillRect(sx+6,sy+6,5,5);
+      ctx.fillRect(sx+18,sy+18,5,5);
+      break;
+    case 2: // wall
+      ctx.fillStyle = COL.wall;
+      ctx.fillRect(sx, sy, T, T);
+      ctx.fillStyle = COL.wallL;
+      ctx.fillRect(sx+2,sy+2,T-4,8);
+      ctx.fillRect(sx+2,sy+14,T-4,8);
+      break;
+    case 3: // tree
+      ctx.fillStyle = COL.grass;
+      ctx.fillRect(sx, sy, T, T);
+      // trunk
+      ctx.fillStyle = '#5a3010';
+      ctx.fillRect(sx+13, sy+18, 6, 14);
+      // canopy
+      ctx.fillStyle = COL.treeD;
+      ctx.fillRect(sx+4, sy+4, 24, 18);
+      ctx.fillStyle = COL.tree;
+      ctx.fillRect(sx+6, sy+2, 20, 18);
+      ctx.fillStyle = '#2a7a2a';
+      ctx.fillRect(sx+9, sy+1, 14, 12);
+      break;
+    case 4: // water
+      ctx.fillStyle = (Math.floor(Date.now()/800)+(tx+ty))%2===0 ? COL.water : COL.waterL;
+      ctx.fillRect(sx, sy, T, T);
+      // ripple
+      ctx.fillStyle = 'rgba(100,180,255,0.15)';
+      ctx.fillRect(sx+4, sy+10, 12, 3);
+      ctx.fillRect(sx+16, sy+20, 10, 3);
+      break;
+    case 5: // door
+      ctx.fillStyle = COL.wall;
+      ctx.fillRect(sx, sy, T, T);
+      ctx.fillStyle = COL.door;
+      ctx.fillRect(sx+6, sy+6, 20, 26);
+      ctx.fillStyle = '#ffcc44';
+      ctx.fillRect(sx+20, sy+16, 4, 4);
+      break;
+  }
+}
+
+function drawBuilding(b) {
+  const sx = b.col*T - camX;
+  const sy = b.row*T - camY;
+  const bw = b.w*T, bh = b.h*T;
+  if (sx > W+60 || sx+bw < -60 || sy > H+60 || sy+bh < -60) return;
+
+  // Roof
+  ctx.fillStyle = b.color;
+  ctx.fillRect(sx, sy, bw, 12);
+  // Roof accent
+  ctx.fillStyle = b.accent;
+  ctx.fillRect(sx, sy, bw, 4);
+
+  // Building label (above)
+  ctx.fillStyle = b.accent;
+  ctx.font = 'bold 8px monospace';
+  ctx.textAlign = 'center';
+  const lines = b.name.split(' ');
+  lines.forEach((l,i) => ctx.fillText(l, sx+bw/2, sy - 14 + i*10));
+  ctx.textAlign = 'left';
+
+  // Done badge
+  if (NPCS[b.npcIdx].done) {
+    ctx.fillStyle = '#4ade80';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('✓', sx+bw-10, sy+12);
+    ctx.textAlign = 'left';
+  }
+}
+
+function drawNPC(n) {
+  const sx = Math.round(n.x - camX);
+  const sy = Math.round(n.y - camY);
+  if (sx < -40||sx > W+40||sy < -40||sy > H+40) return;
+
+  const bob = Math.sin(Date.now()/400 + n.id) * 1.5;
+
+  if (n.done) {
+    // Greyed out with checkmark
+    ctx.globalAlpha = 0.4;
+  }
+
+  // Shadow
+  ctx.fillStyle = COL.shadow;
+  ctx.beginPath(); ctx.ellipse(sx, sy+18, 9, 4, 0, 0, Math.PI*2); ctx.fill();
+
+  // Body
+  ctx.fillStyle = n.color;
+  ctx.fillRect(sx-7, sy-16+bob, 14, 18);
+  // Head
+  ctx.fillStyle = '#ffcc88';
+  ctx.fillRect(sx-6, sy-28+bob, 12, 12);
+  // Eyes
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(sx-3, sy-24+bob, 2, 2);
+  ctx.fillRect(sx+1, sy-24+bob, 2, 2);
+
+  if (!n.done) {
+    // Exclamation (interact hint)
+    const dist = Math.sqrt((player.x-n.x)**2+(player.y-n.y)**2);
+    if (dist < 60) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('!', sx, sy-34+bob);
+      ctx.textAlign = 'left';
+    }
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+function drawPlayer() {
+  const sx = Math.round(player.x - camX);
+  const sy = Math.round(player.y - camY);
+  const bob = player.moving ? Math.sin(Date.now()/150)*2 : 0;
+  const frame = Math.floor(Date.now()/200)%2;
+
+  // Shadow
+  ctx.fillStyle = COL.shadow;
+  ctx.beginPath(); ctx.ellipse(sx, sy+18, 9, 4, 0, 0, Math.PI*2); ctx.fill();
+
+  // White coat
+  ctx.fillStyle = '#ddeeff';
+  ctx.fillRect(sx-8, sy-16+bob, 16, 20);
+  // Blue trim
+  ctx.fillStyle = '#3a7abf';
+  ctx.fillRect(sx-8, sy-16+bob, 3, 20);
+  ctx.fillRect(sx+5, sy-16+bob, 3, 20);
+  // Head
+  ctx.fillStyle = '#f5c09a';
+  ctx.fillRect(sx-5, sy-28+bob, 10, 12);
+  // Hair
+  ctx.fillStyle = '#3a2a10';
+  ctx.fillRect(sx-5, sy-28+bob, 10, 4);
+  // Eyes
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(sx-2, sy-22+bob, 2, 2);
+  ctx.fillRect(sx+1, sy-22+bob, 2, 2);
+  // Stethoscope
+  ctx.strokeStyle = '#ffd700';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(sx, sy-10+bob, 5, 0.3, Math.PI-0.3);
+  ctx.stroke();
+  // Legs (walking animation)
+  ctx.fillStyle = '#2a3a6a';
+  if (player.moving) {
+    ctx.fillRect(sx-5, sy+4+bob, 4, 10 + (frame?2:0));
+    ctx.fillRect(sx+1, sy+4+bob, 4, 10 + (frame?0:2));
+  } else {
+    ctx.fillRect(sx-5, sy+4+bob, 4, 10);
+    ctx.fillRect(sx+1, sy+4+bob, 4, 10);
+  }
+}
+
+function drawProximityCircle() {
+  // Draw subtle circle around player showing interaction range
+  for (let i = 0; i < NPCS.length; i++) {
+    const n = NPCS[i];
+    if (n.done) continue;
+    const dx = player.x - n.x, dy = player.y - n.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if (dist < 60) {
+      const sx = Math.round(n.x - camX);
+      const sy = Math.round(n.y - camY);
+      ctx.strokeStyle = 'rgba(251,191,36,0.3)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.arc(sx, sy, 30, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+//  MINIMAP
+// ─────────────────────────────────────────────
+function drawMinimap() {
+  const mx = W - 80, my = 44, mw = 72, mh = 54;
+  ctx.fillStyle = 'rgba(13,17,23,0.85)';
+  ctx.fillRect(mx, my, mw, mh);
+  ctx.strokeStyle = '#1e2d45';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(mx, my, mw, mh);
+
+  const scx = mw / (MAP_W*T);
+  const scy = mh / (MAP_H*T);
+
+  // NPCs
+  NPCS.forEach(n => {
+    ctx.fillStyle = n.done ? '#4ade80' : '#fbbf24';
+    const nx = mx + n.x*scx;
+    const ny = my + n.y*scy;
+    ctx.fillRect(nx-2, ny-2, 4, 4);
+  });
+
+  // Player dot
+  ctx.fillStyle = '#7ecfff';
+  const ppx = mx + player.x*scx;
+  const ppy = my + player.y*scy;
+  ctx.fillRect(ppx-2, ppy-2, 4, 4);
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = '7px monospace';
+  ctx.fillText('MAPA', mx+2, my+mh-3);
+}
+
+// ─────────────────────────────────────────────
+//  MAIN LOOP
+// ─────────────────────────────────────────────
+function update(dt) {
+  if (GS.dialogueActive) return;
+  if (document.getElementById('screen-end').style.display !== 'none') return;
+
+  const spd = player.speed;
+  let dx = 0, dy = 0;
+
+  if (keys['ArrowLeft']  || keys['a'] || keys['A']) { dx -= spd; player.dir = 3; }
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) { dx += spd; player.dir = 1; }
+  if (keys['ArrowUp']    || keys['w'] || keys['W']) { dy -= spd; player.dir = 0; }
+  if (keys['ArrowDown']  || keys['s'] || keys['S']) { dy += spd; player.dir = 2; }
+
+  player.moving = dx !== 0 || dy !== 0;
+
+  // Normalize diagonal
+  if (dx && dy) { dx *= 0.707; dy *= 0.707; }
+
+  // Collision check (character center + half-width)
+  const hw = 7;
+  const nx = player.x + dx;
+  const ny = player.y + dy;
+
+  if (!isBlocked(nx+hw, player.y) && !isBlocked(nx-hw, player.y)) player.x = nx;
+  if (!isBlocked(player.x, ny+hw) && !isBlocked(player.x, ny-hw)) player.y = ny;
+
+  // Clamp
+  player.x = Math.max(T, Math.min((MAP_W-1)*T, player.x));
+  player.y = Math.max(T, Math.min((MAP_H-1)*T, player.y));
+
+  // Camera follow
+  camX = Math.round(player.x - W/2);
+  camY = Math.round(player.y - H/2);
+  camX = Math.max(0, Math.min(MAP_W*T - W, camX));
+  camY = Math.max(0, Math.min(MAP_H*T - H, camY));
+
+  // Dialogue typing
+  updateDialogueTyping(dt);
+}
+
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Tiles
+  const startTX = Math.floor(camX/T);
+  const startTY = Math.floor(camY/T);
+
+  for (let ty = startTY; ty <= startTY + ROWS; ty++) {
+    for (let tx = startTX; tx <= startTX + COLS; tx++) {
+      const sx = tx*T - camX;
+      const sy = ty*T - camY;
+      drawTile(tx, ty, sx, sy);
+    }
+  }
+
+  // Buildings (labels above tiles)
+  BUILDINGS.forEach(b => drawBuilding(b));
+
+  // NPCs
+  NPCS.forEach(n => drawNPC(n));
+
+  // Proximity rings
+  drawProximityCircle();
+
+  // Player
+  drawPlayer();
+
+  // Minimap
+  drawMinimap();
+
+  // Case counter overlay (bottom-left, above dialogue)
+  if (!GS.dialogueActive) {
+    const completed = NPCS.filter(n=>n.done).length;
+    ctx.fillStyle = 'rgba(13,17,23,0.75)';
+    ctx.fillRect(8, H-28, 160, 20);
+    ctx.fillStyle = '#4ade80';
+    ctx.font = '9px monospace';
+    ctx.fillText(`PACIENTES: ${completed}/4 completados`, 14, H-15);
+  }
+}
+
+function loop(ts) {
+  const dt = Math.min(ts - lastTime, 50);
+  lastTime = ts;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ─────────────────────────────────────────────
+//  INPUT
+// ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    tryInteract();
+  }
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// Click on canvas = interact or move
+canvas.addEventListener('click', e => {
+  if (GS.dialogueActive) { advanceDialogue(); return; }
+  // Click-to-move: rudimentary — just try interact
+  tryInteract();
+});
+
+// Touch controls
+let touchStart = null;
+canvas.addEventListener('touchstart', e => {
+  touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  if (GS.dialogueActive) { advanceDialogue(); }
+}, { passive: true });
+
+canvas.addEventListener('touchend', e => {
+  if (!touchStart) return;
+  const dx = e.changedTouches[0].clientX - touchStart.x;
+  const dy = e.changedTouches[0].clientY - touchStart.y;
+  if (Math.abs(dx) < 10 && Math.abs(dy) < 10) tryInteract();
+  touchStart = null;
+}, { passive: true });
+
+// Virtual D-pad via touch drag
+canvas.addEventListener('touchmove', e => {
+  if (!touchStart || GS.dialogueActive) return;
+  e.preventDefault();
+  const dx = e.touches[0].clientX - touchStart.x;
+  const dy = e.touches[0].clientY - touchStart.y;
+  const thr = 12;
+  keys['ArrowLeft']  = dx < -thr;
+  keys['ArrowRight'] = dx > thr;
+  keys['ArrowUp']    = dy < -thr;
+  keys['ArrowDown']  = dy > thr;
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => {
+  keys['ArrowLeft'] = keys['ArrowRight'] = keys['ArrowUp'] = keys['ArrowDown'] = false;
+}, { passive: true });
+
+// ─────────────────────────────────────────────
+//  START
+// ─────────────────────────────────────────────
+function startGame() {
+  document.getElementById('screen-title').style.display = 'none';
+  document.getElementById('hud').style.display = 'flex';
+  updateHUD();
+
+  // Position player at center path
+  player.x = 10*T + T/2;
+  player.y = 6*T + T/2;
+
+  // Welcome dialogue
+  showDialogue([
+    { speaker:'NARRADOR', text:'Villa Salud. Esta mañana, cuatro pacientes esperan en sus clínicas. Cada uno tiene síntomas relacionados con una ECNT.' },
+    { speaker:'NARRADOR', text:'Tu misión: visita cada clínica, escucha al paciente y toma las decisiones correctas.' },
+    { speaker:'DR. VIDA', text:'Las ECNT no se originan por infecciones agudas. Generan efectos a largo plazo y requieren tratamiento continuo. Vamos a aprender sobre ellas.' },
+    { speaker:'NARRADOR', text:'Muévete con ↑↓←→ o WASD. Acércate a los personajes (!) y presiona ENTER o toca la pantalla para interactuar.' },
+  ]);
+
+  requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

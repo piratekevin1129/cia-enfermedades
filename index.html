@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roles responsabilidades</title>
+
+    <link href="assets/css/fonts.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/reset.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/loader.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/main.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/responsive.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div id="contenedor">
+        <div id="fondo" class="fondo-zoom-in">
+            <div id="personajes">
+                <div class="personaje" id="personaje-1">
+                    <img src="assets/images/personaje-1.png" />
+                </div>
+                <div class="personaje" id="personaje-2">
+                    <img src="assets/images/personaje-2.png" />
+                </div>
+                <div class="personaje" id="personaje-3">
+                    <img src="assets/images/personaje-3.png" />
+                </div>
+                <div class="personaje" id="personaje-4">
+                    <img src="assets/images/personaje-4.png" />
+                </div>
+            </div>
+            <div id="zonas">
+                <div class="zona" id="zona-1">
+                    <img src="assets/images/zona-1.png" onclick="clickPaciente(1)" onmouseover="overzona()" />
+                </div>
+                <div class="zona" id="zona-2">
+                    <img src="assets/images/zona-2.png" onclick="clickPaciente(2)" onmouseover="overzona()" />
+                </div>
+                <div class="zona" id="zona-3">
+                    <img src="assets/images/zona-3.png" onclick="clickPaciente(3)" onmouseover="overzona()" />
+                </div>
+                <div class="zona" id="zona-4">
+                    <img src="assets/images/zona-4.png" onclick="clickPaciente(4)" onmouseover="overzona()" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dialogos-container" class="dialogos-container-off">
+        <div id="dialogo-informacion-container" class="dialogo-informacion-out">
+            <div id="dialogo-informacion">
+                <div class="dialogo-informacion-foto">
+                    <img src="assets/images/foto-1.png" />
+                </div>
+                <div class="dialogo-informacion-info">
+                    <h2>Ficha del paciente</h2>
+                    <h3>Carlos, 52 años</h3>
+                    <h4>ECNT: Por definir</h4>
+                </div>
+                <div class="dialogo-informacion-imagen">
+                    <img src="assets/images/icon-dialogo-informacion.svg" />    
+                </div>
+            </div>
+        </div>
+
+        <div id="dialogo-interaccion" class="dialogo-interaccion-off">
+            <!--<div class="dialogo-usuario">
+                <div class="dialogo-usuario-title">
+                    <h5>CARLOS, 52 años:</h5>
+                </div>
+                <div class="dialogo-usuario-text">
+                    <p>Llevo 25 años fumando. Nunca hago ejercicio. Como mucho frito y salado. Me dijeron que tengo la presión alta pero nunca le hice caso.</p>
+                </div>
+            </div>
+
+            <div class="dialogo-doctor">
+                <div class="dialogo-doctor-title">
+                    <h5>DOCTOR:</h5>
+                </div>
+                <div class="dialogo-doctor-text">
+                    <p>Veo varios signos de alarma, Carlos. Analicemos juntos lo que está pasando.</p>
+                </div>
+            </div>-->
+        </div>
+
+        <div id="dialogo-pregunta" class="dialogo-pregunta-off">
+            <div id="dialogo-pregunta-top">
+                <div class="dialogo-pregunta-icon">
+                    <img src="assets/images/icon-modal-pregunta.svg" />
+                </div>
+                <div id="dialogo-pregunta-enunciado">
+                    <p>¿Qué tipo de ECNT describe mejor lo que tiene Carlos?</p>
+                </div>
+                <div id="dialogo-pregunta-respuestas">
+                    <div class="dialogo-pregunta-respuesta normal">
+                        <h6>A</h6>
+                        <p>Cáncer de colon</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dialogo-pregunta-bot">
+                <div id="dialogo-pregunta-estado">
+                    <p>CORRECTO</p>
+                </div>
+                <p id="dialogo-pregunta-retroalimentacion">El dolor de pecho con irradiación al brazo y presión alta son señales de una ECV — grupo de trastornos del corazón, cerebro y vasos sanguíneos.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal-off">
+        <div id="modal-box">
+            <div id="modal-icon">
+                <img src="assets/images/icon-modal-instrucciones.svg" />
+            </div>
+            <h1 id="modal-title">
+                Enfermedades crónicas no transmisibles (ECNT)
+            </h1>
+            <div id="modal-text">
+                <p><span>Ponte en el rol de médico:</span> cuatro pacientes están esperando tu ayuda.</p>
+                <p>Escucha atentamente sus historias, identifica qué enfermedad podría tener cada uno y propón recomendaciones prácticas para mejorar su estilo de vida y bienestar.</p>
+            </div>
+            <button id="modal-btn">Comenzar consulta</button>
+        </div>
+    </div>
+
+    <div id="loader" class="loader-on">
+        <div id="loader-img">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+                <path fill="#999999" d="M286.7 96.1C291.7 113 282.1 130.9 265.2 135.9C185.9 159.5 128.1 233 128.1 320C128.1 426 214.1 512 320.1 512C426.1 512 512.1 426 512.1 320C512.1 233.1 454.3 159.6 375 135.9C358.1 130.9 348.4 113 353.5 96.1C358.6 79.2 376.4 69.5 393.3 74.6C498.9 106.1 576 204 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320C64 204 141.1 106.1 246.9 74.6C263.8 69.6 281.7 79.2 286.7 96.1z" />
+            </svg>
+        </div>
+        <div id="loader-bar">
+            <div id="loader-bar2"></div>
+        </div>
+    </div>
+
+    <script src="assets/scripts/data.js"></script>
+    <script src="assets/scripts/loader.js"></script>
+    <script src="assets/scripts/main.js"></script>
+
+    <script>
+        var over_mp3 = null;
+        var click_mp3 = null;
+        var modal_mp3 = null;
+        var underground_mp3 = null;
+
+        var intro_mp3 = null;
+        
+        var global_audio = null;
+        var audios_data = []
+
+        window.onload = function(){
+            setFondo()
+
+            loadTrack({src: 'assets/sounds/click2.mp3', callBack: function(data){
+                over_mp3 = data
+                checkAudios(true)
+            }})
+            loadTrack({src: 'assets/sounds/click1.mp3', callBack: function(data){
+                click_mp3 = data
+                checkAudios(true)
+            }})
+            loadTrack({src: 'assets/sounds/modal.mp3', callBack: function(data){
+                modal_mp3 = data
+                checkAudios(true)
+            }})
+            loadTrack({src: 'assets/sounds/underground.mp3', callBack: function(data){
+                underground_mp3 = data
+                underground_mp3.loop = true
+                checkAudios(true)
+            }})
+
+            /*loadTrack({src: 'assets/audios/intro.mp3', callBack: function(data){
+                intro_mp3 = data
+                checkAudios(true)
+            }})*/
+        }
+            
+
+        function comenzarJuego(){
+            setFondo()
+            unsetLoader()
+            underground_mp3.play()
+        }
+
+    </script>
+</body>
+
+</html>

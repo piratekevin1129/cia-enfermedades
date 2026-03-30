@@ -1,0 +1,18 @@
+@font-face {
+    font-family: "Helvetica-Bold";
+    font-display: swap;
+    font-style: normal;
+    src: url("fonts/Helvetica-Bold.ttf") format('truetype');
+}
+@font-face {
+    font-family: "Helvetica-Light";
+    font-display: swap;
+    font-style: normal;
+    src: url("fonts/Helvetica-Light.ttf") format('truetype');
+}
+@font-face {
+    font-family: "Helvetica";
+    font-display: swap;
+    font-style: normal;
+    src: url("fonts/Helvetica.ttf") format('truetype');
+}
