@@ -1,6 +1,7 @@
 var pacientes_data = [
 	{
 		id:1,
+		status:'unlocked',
 		center:15,
 		nombre:'Carlos',
 		edad:'52',
@@ -33,7 +34,7 @@ var pacientes_data = [
 					'Enfermedad respiratoria crónica'
 				],
 				correcta:2,
-				retroalimentacionok:'El dolor de pecho con irradiación al brazo y presión alta son señales de una ECV — grupo de trastornos del corazón, cerebro y vasos sanguíneos.',
+				retroalimentacionok:'El dolor de pecho con irradiación al brazo y presión alta son señales de una ECV - grupo de trastornos del corazón, cerebro y vasos sanguíneos.',
 				retroalimentacionko:'Sus síntomas (dolor torácico, brazo izquierdo, presión alta) corresponden a una Enfermedad Cardiocerebrovasvascular (ECV).'
 			},{
 				audio:null,
@@ -47,7 +48,7 @@ var pacientes_data = [
 					'Sus antecedentes familiares'
 				],
 				correcta:3,
-				retroalimentacionok:'El tabaquismo y el sedentarismo son factores MODIFICABLES — los más relevantes porque están directamente relacionados con el estilo de vida.',
+				retroalimentacionok:'El tabaquismo y el sedentarismo son factores MODIFICABLES - los más relevantes porque están directamente relacionados con el estilo de vida.',
 				retroalimentacionko:'Edad y sexo son NO modificables. El tabaquismo y sedentarismo son los factores MODIFICABLES clave: dependen del estilo de vida y pueden cambiarse.'
 			},{
 				audio:null,
@@ -68,6 +69,7 @@ var pacientes_data = [
 	},
 	{
 		id:2,
+		status:'locked',
 		center:38.75,
 		nombre:'Andrés',
 		edad:'45',
@@ -135,6 +137,7 @@ var pacientes_data = [
 	},
 	{
 		id:3,
+		status:'locked',
 		center:63.5,
 		nombre:'Rosa',
 		edad:'65',
@@ -196,12 +199,13 @@ var pacientes_data = [
 				],
 				correcta:2,
 				retroalimentacionok:'El humo de leña en ambientes cerrados es un factor MODIFICABLE. Como todos los factores comportamentales, está relacionado con el estilo de vida y puede intervenirse.',
-				retroalimentacionko:'El humo de leña es un factor MODIFICABLE — puede cambiarse. Los factores modificables son los más relevantes por estar directamente relacionados con el estilo de vida.'
+				retroalimentacionko:'El humo de leña es un factor MODIFICABLE - puede cambiarse. Los factores modificables son los más relevantes por estar directamente relacionados con el estilo de vida.'
 			}
 		]
 	},
 	{
 		id:4,
+		status:'locked',
 		center:86.67,
 		nombre:'Lucía',
 		edad:'48',

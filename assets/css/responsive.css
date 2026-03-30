@@ -1,1 +1,184 @@
-@media (min-width: 1537px) {}
+@media (min-width: 1537px) {
+    #dialogo-pregunta-top{
+        border-top: #59595B solid 7px;
+        padding: 70px 20px 20px 20px;
+        margin-bottom: 20px;
+    }
+    #dialogo-pregunta-bot{
+        border-top: #00BE91 solid 7px;
+        padding: 20px;
+    }
+
+    .modal-box{
+        width: 600px;
+    }
+    .modal-final-box{
+        width: 900px;
+    }
+
+    .modal-box,
+    .modal-final-box{
+        padding: 70px 20px 20px 20px;
+        border-top: #59595B solid 7px;
+    }
+
+    .dialogo-pregunta-icon,
+    .modal-icon{
+        width: 100px;
+        height: 100px;
+    }
+    .dialogo-pregunta-icon img,
+    .modal-icon img{
+        width: 50px;
+    }
+
+    #modal-title{
+        font-size: 1.5rem;
+    }
+
+    #modal-final-title h3{
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+    }
+    #modal-final-title h1{
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+    #modal-final-title h2{
+        font-size: 1.2rem;
+    }
+
+    #modal-text p,
+    #modal-final-text p,
+    #modal-final-text h6{
+        font-size: 1.25rem;
+        
+        margin-bottom: 15px;
+    }
+
+    #modal-btn{
+        padding: 12px;
+        font-size: 1.25rem;
+    }
+
+    /**************/
+
+    #dialogo-informacion-container{
+        width: 450px;
+        top: 20px;
+    }
+    #dialogo-informacion{
+        height: 130px;
+        padding: 20px;
+    }
+    .dialogo-informacion-foto{
+        width: 90px;
+        max-height: 90px;
+    }
+    .dialogo-informacion-info{
+        width: auto;
+        width: calc(100% - (80px + 90px + 40px));
+        width: -moz-calc(100% - (80px + 90px + 40px));
+        margin: 0px 20px;
+    }
+    .dialogo-informacion-info h2,
+    .dialogo-informacion-info h4{
+        font-size: 1.2rem;
+    }
+    .dialogo-informacion-info h3{
+        font-size: 1.4rem;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    .dialogo-informacion-imagen{
+        width: 80px;
+    }
+
+    /**************/
+
+    .dialogo-user-title,
+    .dialogo-doctor-title,
+    .dialogo-user-text,
+    .dialogo-doctor-text{
+        padding: 10px;
+    }
+    .dialogo-user-title h5,
+    .dialogo-doctor-title h5{
+        font-size: 1.2rem;
+    }
+    .dialogo-user-title{
+        padding-left: 45px;
+        background-size: 25px;
+        background-position: 10px center;
+    }
+    .dialogo-doctor-title{
+        padding-left: 45px;
+        background-size: 25px;
+        background-position: 10px center;
+    }
+    .dialogo-user-text,
+    .dialogo-doctor-text{
+        padding: 10px 15px;
+    }
+    .dialogo-user-text p,
+    .dialogo-doctor-text p{
+        font-size: 1.25rem;
+    }
+
+
+    #dialogo-pregunta{
+        width: 800px;
+        height: auto;
+        height: calc(100% - (130px + 20px + 20px + 20px));
+        height: -moz-calc(100% - (130px + 20px + 20px + 20px));
+        left: 100px;
+        top: 170px;/*130 + 20 + 20*/
+    }
+    
+    
+    .dialogo-pregunta-bot-off{
+        top: -50px;
+    }
+    .dialogo-pregunta-bot-on{
+        top: 0px;
+    }
+                    
+    #dialogo-pregunta-enunciado,
+    #dialogo-pregunta-estado{
+        margin-bottom: 25px;
+    }
+    #dialogo-pregunta-enunciado p,
+    #dialogo-pregunta-estado p{
+        font-size: 1.4rem;
+    }
+    #dialogo-pregunta-estado p{
+        font-size: 1.35rem;
+    }
+                    
+    #dialogo-pregunta-respuestas{
+        width: 100%;
+        width: calc(100% - 30px);
+        width: -moz-calc(100% - 30px);
+    }
+    .dialogo-pregunta-respuesta{
+        margin-bottom: 10px;
+    }
+
+    .dialogo-pregunta-respuesta h6{
+        width: 50px;
+        margin-right: 15px;
+        font-size: 1.7rem;
+    }
+
+    .dialogo-pregunta-respuesta p{
+        width: auto;
+        width: calc(100% - 65px);
+        width: -moz-calc(100% - 65px);
+        padding: 15px;
+        font-size: 1.3rem;
+    }
+
+    #dialogo-pregunta-retroalimentacion{
+        font-size: 1.25rem;
+    }
+}

@@ -15,30 +15,34 @@
     <div id="contenedor">
         <div id="fondo" class="fondo-zoom-in">
             <div id="personajes">
-                <div class="personaje" id="personaje-1">
+                <div class="personaje personaje-unlocked" id="personaje-1">
                     <img src="assets/images/personaje-1.png" />
                 </div>
-                <div class="personaje" id="personaje-2">
+                <div class="personaje personaje-locked" id="personaje-2">
                     <img src="assets/images/personaje-2.png" />
                 </div>
-                <div class="personaje" id="personaje-3">
+                <div class="personaje personaje-locked" id="personaje-3">
                     <img src="assets/images/personaje-3.png" />
                 </div>
-                <div class="personaje" id="personaje-4">
+                <div class="personaje personaje-locked" id="personaje-4">
                     <img src="assets/images/personaje-4.png" />
                 </div>
             </div>
+            <div id="mascaras">
+                <div id="mascara-1" class="mascara-off"></div>
+                <div id="mascara-2" class="mascara-off"></div>
+            </div>
             <div id="zonas">
-                <div class="zona" id="zona-1">
+                <div class="zona zona-on" id="zona-1">
                     <img src="assets/images/zona-1.png" onclick="clickPaciente(1)" onmouseover="overzona()" />
                 </div>
-                <div class="zona" id="zona-2">
+                <div class="zona zona-off" id="zona-2">
                     <img src="assets/images/zona-2.png" onclick="clickPaciente(2)" onmouseover="overzona()" />
                 </div>
-                <div class="zona" id="zona-3">
+                <div class="zona zona-off" id="zona-3">
                     <img src="assets/images/zona-3.png" onclick="clickPaciente(3)" onmouseover="overzona()" />
                 </div>
-                <div class="zona" id="zona-4">
+                <div class="zona zona-off" id="zona-4">
                     <img src="assets/images/zona-4.png" onclick="clickPaciente(4)" onmouseover="overzona()" />
                 </div>
             </div>
@@ -49,11 +53,11 @@
         <div id="dialogo-informacion-container" class="dialogo-informacion-out">
             <div id="dialogo-informacion">
                 <div class="dialogo-informacion-foto">
-                    <img src="assets/images/foto-1.png" />
+                    <img id="dialogo-informacion-foto-img" src="./assets/images/foto-1.png" />
                 </div>
                 <div class="dialogo-informacion-info">
                     <h2>Ficha del paciente</h2>
-                    <h3>Carlos, 52 años</h3>
+                    <h3 id="dialogo-informacion-info-txt">...</h3>
                     <h4>ECNT: Por definir</h4>
                 </div>
                 <div class="dialogo-informacion-imagen">
@@ -63,23 +67,7 @@
         </div>
 
         <div id="dialogo-interaccion" class="dialogo-interaccion-off">
-            <!--<div class="dialogo-usuario">
-                <div class="dialogo-usuario-title">
-                    <h5>CARLOS, 52 años:</h5>
-                </div>
-                <div class="dialogo-usuario-text">
-                    <p>Llevo 25 años fumando. Nunca hago ejercicio. Como mucho frito y salado. Me dijeron que tengo la presión alta pero nunca le hice caso.</p>
-                </div>
-            </div>
-
-            <div class="dialogo-doctor">
-                <div class="dialogo-doctor-title">
-                    <h5>DOCTOR:</h5>
-                </div>
-                <div class="dialogo-doctor-text">
-                    <p>Veo varios signos de alarma, Carlos. Analicemos juntos lo que está pasando.</p>
-                </div>
-            </div>-->
+            <!---->
         </div>
 
         <div id="dialogo-pregunta" class="dialogo-pregunta-off">
@@ -88,38 +76,61 @@
                     <img src="assets/images/icon-modal-pregunta.svg" />
                 </div>
                 <div id="dialogo-pregunta-enunciado">
-                    <p>¿Qué tipo de ECNT describe mejor lo que tiene Carlos?</p>
+                    <p id="dialogo-pregunta-enunciado-txt">...</p>
                 </div>
                 <div id="dialogo-pregunta-respuestas">
-                    <div class="dialogo-pregunta-respuesta normal">
-                        <h6>A</h6>
-                        <p>Cáncer de colon</p>
-                    </div>
+                    <!---->
                 </div>
             </div>
 
-            <div id="dialogo-pregunta-bot">
+            <div id="dialogo-pregunta-bot" class="dialogo-pregunta-bot-off">
                 <div id="dialogo-pregunta-estado">
-                    <p>CORRECTO</p>
+                    <p id="dialogo-pregunta-estado-txt">...</p>
                 </div>
-                <p id="dialogo-pregunta-retroalimentacion">El dolor de pecho con irradiación al brazo y presión alta son señales de una ECV — grupo de trastornos del corazón, cerebro y vasos sanguíneos.</p>
+                <p id="dialogo-pregunta-retroalimentacion">...</p>
             </div>
         </div>
     </div>
 
-    <div id="modal" class="modal-off">
-        <div id="modal-box">
-            <div id="modal-icon">
+    <button id="omitir-btn" onclick="omitirAudio()">Omitir</button>
+
+    <div id="modal" class="modal-on">
+        <div class="modal-box">
+            <div class="modal-icon">
                 <img src="assets/images/icon-modal-instrucciones.svg" />
             </div>
-            <h1 id="modal-title">
-                Enfermedades crónicas no transmisibles (ECNT)
-            </h1>
+            <h1 id="modal-title">Enfermedades crónicas no transmisibles (ECNT)</h1>
             <div id="modal-text">
                 <p><span>Ponte en el rol de médico:</span> cuatro pacientes están esperando tu ayuda.</p>
                 <p>Escucha atentamente sus historias, identifica qué enfermedad podría tener cada uno y propón recomendaciones prácticas para mejorar su estilo de vida y bienestar.</p>
             </div>
-            <button id="modal-btn">Comenzar consulta</button>
+            <button id="modal-btn" onclick="iniciarJuego()">Comenzar consulta</button>
+        </div>
+    </div>
+
+    <div id="modal-final" class="modal-final-off">
+        <div class="modal-final-box">
+            <div class="modal-icon">
+                <img src="assets/images/icon-modal-instrucciones.svg" />
+            </div>
+            <div id="modal-final-title">
+                <h3>Fin de la consulta</h3>
+                <h1 id="modal-final-title-txt1">...</h1>
+                <h2>📄 Diagnósticos correctos: <span id="modal-final-title-txt2"></span></h2>
+            </div>
+            <div id="modal-final-text">
+                <h6>Repaso rápido ECNT:</h6>
+                <p>
+                    ❤ <span>ECV:</span> trastornos del corazón, cerebro y vasos sanguíneos<br>
+                    🎗 <span>Cáncer:</span> células crecen de forma descontrolada y se diseminan<br>
+                    🍃 <span>Respiratorias:</span> afectan bronquios, pulmones y caja torácica (asma, EPOC)<br>
+                    💧 <span>Diabetes:</span> trastorno metabólico del uso del azúcar en sangre
+                </p>
+                <p>
+                    <span>Factores modificables (los más relevantes):</span> tabaquismo, alimentación inadecuada, obesidad, sedentarismo, alcohol, hipertensión, diabetes<br>
+                    <span>No modificables:</span> edad, sexo, genética, antecedentes familiares
+                </p>
+            </div>
         </div>
     </div>
 
@@ -142,6 +153,9 @@
         var over_mp3 = null;
         var click_mp3 = null;
         var modal_mp3 = null;
+        var mensaje_mp3 = null;
+        var correcto_mp3 = null;
+        var incorrecto_mp3 = null;
         var underground_mp3 = null;
 
         var intro_mp3 = null;
@@ -165,6 +179,19 @@
                 modal_mp3 = data
                 checkAudios(true)
             }})
+            loadTrack({src: 'assets/sounds/mensaje.mp3', callBack: function(data){
+                mensaje_mp3 = data
+                checkAudios(true)
+            }})
+            loadTrack({src: 'assets/sounds/correct.mp3', callBack: function(data){
+                correcto_mp3 = data
+                checkAudios(true)
+            }})
+            loadTrack({src: 'assets/sounds/wrong.mp3', callBack: function(data){
+                incorrecto_mp3 = data
+                checkAudios(true)
+            }})
+
             loadTrack({src: 'assets/sounds/underground.mp3', callBack: function(data){
                 underground_mp3 = data
                 underground_mp3.loop = true
@@ -180,9 +207,15 @@
                 checkAudios(true)
             }})
         }
-            
 
+        function iniciarJuego(){
+            intro_mp3.pause()
+            click_mp3.play()
+            getE('modal').className = 'modal-off'
+        }
+        
         function comenzarJuego(){
+            configureRespuestas()
             setFondo()
             loadAudiosDialogos()
         }

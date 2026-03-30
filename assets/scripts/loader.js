@@ -1,9 +1,9 @@
-var total_audios = 6;
+var total_audios = 9;
 var total_images = 0;
 var total_extra = 0;
 for(i = 0;i<pacientes_data.length;i++){
     total_extra+=pacientes_data[i].dialogos.length
-    total_extra+=pacientes_data[i].preguntas.length
+    total_extra+=(pacientes_data[i].preguntas.length * 3)
 }
 var total_files = (total_audios + total_images + total_extra)
 
