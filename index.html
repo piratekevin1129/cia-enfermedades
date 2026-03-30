@@ -145,6 +145,7 @@
         var underground_mp3 = null;
 
         var intro_mp3 = null;
+        var final_mp3 = null;
         
         var global_audio = null;
         var audios_data = []
@@ -170,17 +171,20 @@
                 checkAudios(true)
             }})
 
-            /*loadTrack({src: 'assets/audios/intro.mp3', callBack: function(data){
+            loadTrack({src: 'assets/audios/intro.mp3', callBack: function(data){
                 intro_mp3 = data
                 checkAudios(true)
-            }})*/
+            }})
+            loadTrack({src: 'assets/audios/final.mp3', callBack: function(data){
+                final_mp3 = data
+                checkAudios(true)
+            }})
         }
             
 
         function comenzarJuego(){
             setFondo()
-            unsetLoader()
-            underground_mp3.play()
+            loadAudiosDialogos()
         }
 
     </script>

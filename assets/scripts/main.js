@@ -62,6 +62,54 @@ function setFondo(){
     }
 }
 
+var audio_paciente_i = 1
+var audio_paciente_j = 1
+
+function loadAudiosDialogos(){
+    if(audio_paciente_i>pacientes_data.length){
+        audio_paciente_i = 1
+        audio_paciente_j = 1
+        loadAudiosPreguntas()
+    }else{
+        loadAudiosDialogo()
+    }
+}
+
+function loadAudiosDialogo(){
+    loadTrack({src:'./assets/audios/'+audio_paciente_i+'-'+audio_paciente_j+'.mp3', callBack: function(data){
+        pacientes_data[audio_paciente_i-1].dialogos[audio_paciente_j-1].audio = data
+        updateLoader()
+        audio_paciente_j++
+        if(audio_paciente_j>pacientes_data[audio_paciente_i-1].dialogos.length){
+            audio_paciente_j = 1
+            audio_paciente_i++
+        }
+        loadAudiosDialogos()
+    }})
+}
+
+function loadAudiosPreguntas(){
+    if(audio_paciente_i>pacientes_data.length){
+        unsetLoader()
+        underground_mp3.play()
+    }else{
+        loadAudiosPregunta()
+    }
+}
+
+function loadAudiosPregunta(){
+    loadTrack({src:'./assets/audios/pregunta'+audio_paciente_i+'-'+audio_paciente_j+'.mp3', callBack: function(data){
+        pacientes_data[audio_paciente_i-1].preguntas[audio_paciente_j-1].audio = data
+        updateLoader()
+        audio_paciente_j++
+        if(audio_paciente_j>pacientes_data[audio_paciente_i-1].preguntas.length){
+            audio_paciente_j = 1
+            audio_paciente_i++
+        }
+        loadAudiosPreguntas()
+    }})
+}
+
 var zonas = [
     [468,726,31,276],
     [443,713,521,290],
@@ -117,9 +165,45 @@ function clickPaciente(p){
     },2000)
 }
 
+var current_dialog = 0
 
 function setDialogos(){
     getE('dialogos-container').className = "dialogos-container-on"
     getE('dialogo-informacion-container').className = 'dialogo-informacion-in'
     getE('dialogo-interaccion').className = 'dialogo-interaccion-on'
+
+    setDialogo()
+}
+
+function setDialogo(){
+    var div_d = document.createElement('div')
+    var tipo = pacientes_data[actual_p].dialogos[current_dialog].person
+    div_d.className = 'dialogo-'+tipo+' dialogo-'+tipo+'-on'
+
+    var div_h = ''    
+    div_h+='<div class="dialogo-'+tipo+'-title">'
+        div_h+='<h5>'+pacientes_data[actual_p].nombre+', '+pacientes_data[actual_p].edad+' años:</h5>'
+    div_h+='</div>'
+    div_h+='<div class="dialogo-'+tipo+'-text">'
+        div_h+='<p>'+pacientes_data[actual_p].dialogos[current_dialog].text+'</p>'
+    div_h+='</div>'
+
+    div_d.innerHTML = div_h
+    getE('dialogo-interaccion').appendChild(div_d)
+
+    global_audio = pacientes_data[actual_p].dialogos[current_dialog].audio
+    global_audio.play()
+    global_audio.onended = function(){
+        global_audio.onended = null
+        nextDialogo()
+    }
+}
+
+function nextDialogo(){
+    current_dialog++
+    if(current_dialog>=pacientes_data[actual_p].dialogos.length){
+        //empezar con pregunta
+    }else{
+        setDialogo()
+    }
 }

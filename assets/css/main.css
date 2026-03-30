@@ -209,9 +209,14 @@
 }
 
 .dialogo-interaccion-off{
+    filter: blur(10px);
+    opacity: 0;
     visibility: hidden;
+    transition: filter 0.25s, opacity 0.5s, visibility 0.5s;
 }
 .dialogo-interaccion-on{
+    filter: blur(0px);
+    opacity: 1;
     visibility: visible;
 }
 
@@ -231,7 +236,7 @@
     border: #000 solid 1px;
 }
 
-.dialogo-usuario,
+.dialogo-user,
 .dialogo-doctor{
     width: 80%;
     height: auto;
@@ -240,37 +245,51 @@
     transition: left 0.2s, opacity 0.2s;
 }
 
-.dialogo-usuario-off{
-    left: -20%;
-    opacity: 0;
-}
-.dialogo-usuario-on{
+.dialogo-user-on{
     left: 0%;
     opacity: 1;
+    animation: animacion-dialogo-user-on 0.2s 1 forwards ease-out;
 }
-.dialogo-doctor-off{
-    left: 40%;
-    opacity: 0;
+@keyframes animacion-dialogo-user-on {
+    0%{
+        left: -20%;
+        opacity: 0;
+    }
+    100%{
+        left: 0%;
+        opacity: 1;
+    }
 }
 .dialogo-doctor-on{
-    left: 20%;
+    left: 0%;
     opacity: 1;
+    animation: animacion-dialogo-doctor-on 0.2s 1 forwards ease-out;
+}
+@keyframes animacion-dialogo-doctor-on {
+    0%{
+        left: 40%;
+        opacity: 0;
+    }
+    100%{
+        left: 20%;
+        opacity: 1;
+    }
 }
 
-.dialogo-usuario-title,
+.dialogo-user-title,
 .dialogo-doctor-title,
-.dialogo-usuario-text,
+.dialogo-user-text,
 .dialogo-doctor-text{
     width: 100%;
     padding: 5px;
 }
-.dialogo-usuario-title h5,
+.dialogo-user-title h5,
 .dialogo-doctor-title h5{
     font-family: 'Helvetica';
     font-weight: 600;
     font-size: 0.9rem;
 }
-.dialogo-usuario-title{
+.dialogo-user-title{
     padding-left: 25px;
     background: url(../images/icon-dialogo-usuario.svg) no-repeat #C1E8F9;
     background-size: 15px;
@@ -282,18 +301,18 @@
     background-size: 15px;
     background-position: 5px center;
 }
-.dialogo-usuario-title h5{
+.dialogo-user-title h5{
     color: #003FA2;
 }
 .dialogo-doctor-title h5{
     color: #00795C;
 }
-.dialogo-usuario-text,
+.dialogo-user-text,
 .dialogo-doctor-text{
     background-color: #fff;
     padding: 8px 10px;
 }
-.dialogo-usuario-text p,
+.dialogo-user-text p,
 .dialogo-doctor-text p{
     font-family: 'Helvetica';
     font-size: 0.9rem;
